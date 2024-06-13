@@ -24,15 +24,16 @@ stages:
       inputs:
         versionSpec: '18.15.0'
       displayName: 'Install Node.js'
-
+      condition: 
+    - script: |
+        ls -lR
+      displayName: 'Mostrar estructura de directorios'
     - script: |
         npm install 
         npm run build 
       displayName: 'npm install and build'
     
-    - script: |
-        ls -lR
-      displayName: 'Mostrar estructura de directorios'
+
 
     - script: npm run test
       displayName: 'Run Tests'
