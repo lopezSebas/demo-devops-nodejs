@@ -3,19 +3,192 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-trigger:
-- master
+resources:
+ repositories:
+   - repository: self
+     trigger:
+      - master
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+stages:
+- stage: Code_Build
+  displayName: Build Node JS
+  jobs:
+  - job: Build_Code
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.15.0'
+      displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+    - script: |
+        npm install 
+        npm run build 
+      displayName: 'npm install and build'
+
+    - script: npm run test
+      displayName: 'Run Tests'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/dist'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Static_Code_Analysis
+  displayName: DevSecOps
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: SonarCloudPrepare@2
+      inputs:
+        SonarCloud: 'Token-sonarcloud'
+        organization: 'sonarcloud-lopezsebas'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'sonar-devops-nodejs'
+        cliProjectName: 'NodeJS'
+        cliSources: '.'
+    - task: SonarCloudAnalyze@2
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'
+    - task: SonarCloudPublish@2
+      inputs:
+        pollingTimeoutSec: '300'
+
+    - task: SnykSecurityScan@1
+      displayName: Snyk SAST scan for code vulnerabilities
+      inputs:
+        serviceConnectionEndpoint: 'Snyk'
+        testType: 'code'
+        failOnIssues: false
+        projectName: 'NodeJS'
+        organization: 'slorenzonl'
+    - task: SnykSecurityScan@1
+      displayName: Snyk SCA for open source vulnerabilities
+      inputs:
+        serviceConnectionEndpoint: 'Snyk'
+        testType: 'app'
+        monitorWhen: 'always'
+        failOnIssues: false
+        projectName: 'DevOpsNodeJS'
+        organization: 'slorenzonl'
+
+    - task: WhiteSource@21
+      displayName: Scan vulnerabilities CVEs
+      inputs:
+        cwd: '$(System.DefaultWorkingDirectory)'
+
+- stage: Scan_Secrets
+  displayName: Scan Secrets
+  jobs:
+  - job: ubuntu
+    displayName: "detect-secrets on Ubuntu Linux agent"
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UsePythonVersion@0
+        displayName: "Set Python 3 as default"
+        inputs:
+          versionSpec: "3"
+          addToPath: true
+          architecture: "x64"
+
+      - bash: pip install detect-secrets
+        displayName: "Install detect-secrets using pip"
+
+      - bash: |
+          detect-secrets --version
+          detect-secrets scan --all-files --force-use-all-plugins --exclude-files FETCH_HEAD > $(Pipeline.Workspace)/detect-secrets.json
+        displayName: "Run detect-secrets tool"
+
+      - task: PublishPipelineArtifact@1
+        displayName: "Publish results in the Pipeline Artifact"
+        inputs:
+          targetPath: "$(Pipeline.Workspace)/detect-secrets.json"
+          artifact: "detect-secrets-ubuntu"
+          publishLocation: "pipeline"
+
+      - bash: |
+          dsjson=$(cat $(Pipeline.Workspace)/detect-secrets.json)
+          echo "${dsjson}"
+
+          count=$(echo "${dsjson}" | jq -c -r '.results | length')
+
+          if [ $count -gt 0 ]; then
+            msg="Secrets were detected in code. ${count} file(s) affected."
+            echo "##vso[task.logissue type=error]${msg}"
+            echo "##vso[task.complete result=Failed;]${msg}."
+          else
+            echo "##vso[task.complete result=Succeeded;]No secrets detected."
+          fi
+        displayName: "Analyzing detect-secrets results"
+
+- stage: Container
+  displayName: Container
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'DockerHub'
+          repository: 'lopezsebas/test-node-js'
+          command: 'buildAndPush'
+          Dockerfile: 'Dockerfile'
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'DockerHub'
+          command: 'login'
+
+- stage: DevSecOps_Container
+  displayName: DevSecOps Container
+  jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: trivy@1
+        displayName: "Scan Container with Trivy"
+        inputs:
+          version: 'latest'
+          loginDockerConfig: true
+          image: 'lopezsebas/test-node-js:$(Build.BuildId)'
+          severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
+          exitCode: '0'
+      - task: SnykSecurityScan@1
+        displayName: "Scan Container with Snyk"
+        inputs:
+          serviceConnectionEndpoint: 'Snyk'
+          testType: 'container'
+          dockerImageName: 'lopezsebas/test-node-js:$(Build.BuildId)'
+          monitorWhen: 'always'
+          failOnIssues: false
+          projectName: 'Container-test-node-js'
+          organization: 'slorenzonl'
+          
+
+- stage: Deploy_Kubernetes
+  displayName: Deploy to an K8S
+  jobs:
+    - deployment: Deploy
+      environment: approvals
+      pool:
+        vmImage: "ubuntu-latest"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: CmdLine@2
+              inputs:
+                script: |
+                  echo Write your commands here
+                  
+                  echo Hello world
