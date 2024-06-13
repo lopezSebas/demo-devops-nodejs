@@ -8,32 +8,35 @@ describe('User', () => {
     let data
     let mockedSequelize
 
-    beforeEach(async () => {
-        data = {
-            "dni": "1234567890",
-            "name": "Test"
-        }
-        jest.spyOn(console, 'log').mockImplementation(jest.fn())
-        jest.spyOn(sequelize, 'log').mockImplementation(jest.fn())
-        mockedSequelize = new Sequelize({
-            database: '<any name>',
-            dialect: 'sqlite',
-            username: 'root',
-            password: '',
-            validateOnly: true,
-            models: [__dirname + '/models'],
-        })
-        await mockedSequelize.sync({ force: true })
-		User.init(mockedSequelize)
-    })
+	beforeAll(async () => {
+        jest.spyOn(console, 'log').mockImplementation(jest.fn());
+        jest.spyOn(sequelize, 'log').mockImplementation(jest.fn());
 
-    afterEach(async () => {
-        jest.clearAllMocks()
-        await mockedSequelize.close()
-    })
+        mockedSequelize = new Sequelize({
+            dialect: 'sqlite',
+            storage: ':memory:',
+            logging: false,
+        });
+
+        User.init(mockedSequelize);
+
+        await mockedSequelize.sync({ force: true });
+    });
 
     afterAll(async () => {
+		await mockedSequelize.close();
         await server.close()
+    })
+	
+	beforeEach(() => {
+        data = {
+            dni: '1234567890',
+            name: 'Test',
+        };
+    });
+	
+	afterEach(async () => {
+        jest.clearAllMocks()
     })
 
     test('Get users', async () => {
