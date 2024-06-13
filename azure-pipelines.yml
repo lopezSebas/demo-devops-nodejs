@@ -24,10 +24,15 @@ stages:
       inputs:
         versionSpec: '18.15.0'
       displayName: 'Install Node.js'
+
     - script: |
-        npm install
-        npm run build
+        npm install 
+        npm run build 
       displayName: 'npm install and build'
+
+    - script: npm run test
+      displayName: 'Run Tests'
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(System.DefaultWorkingDirectory)/dist'
@@ -168,3 +173,22 @@ stages:
           failOnIssues: false
           projectName: 'Container-test-node-js'
           organization: 'slorenzonl'
+          
+
+- stage: Deploy_Kubernetes
+  displayName: Deploy to an K8S
+  jobs:
+    - deployment: Deploy
+      environment: approvals
+      pool:
+        vmImage: "ubuntu-latest"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: CmdLine@2
+              inputs:
+                script: |
+                  echo Write your commands here
+                  
+                  echo Hello world
