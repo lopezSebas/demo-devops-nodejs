@@ -31,7 +31,10 @@ stages:
       displayName: 'Install dependencies'
     - script: npm test
       displayName: 'Run Tests'
-      
+    - task: PublishCodeCoverageResults@2
+      inputs:
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+        pathToSources: '$(System.DefaultWorkingDirectory)'
     - task: PublishCodeCoverageResults@1
       inputs:
         codeCoverageTool: 'cobertura'
