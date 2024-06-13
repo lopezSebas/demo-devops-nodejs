@@ -26,10 +26,10 @@ stages:
       displayName: 'Install Node.js'
       condition: 
 
-    - script: npm install 
-      displayName: 'npm install'
-    - script: npm run test
-      displayName: 'Run Tests'
+    - script: |
+        npm install 
+        npm test
+      displayName: 'Install dependencies and run tests'
       
     - task: PublishCodeCoverageResults@1
       inputs:
