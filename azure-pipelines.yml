@@ -29,13 +29,31 @@ stages:
         npm install 
         npm run build 
       displayName: 'npm install and build'
+    
+    - script: |
+        ls -lR
+      displayName: 'Mostrar estructura de directorios'
 
     - script: npm run test
       displayName: 'Run Tests'
+      
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'cobertura'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+        reportDirectory: '$(System.DefaultWorkingDirectory)/**/coverage'
+      displayName: 'Publicar cobertura de código'
+
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'JaCoCo'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/*coverage.xml'
+        reportDirectory: '$(System.DefaultWorkingDirectory)/**/coverage'
+      displayName: 'Publicar cobertura de código'
 
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(System.DefaultWorkingDirectory)/dist'
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/dist/'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
