@@ -112,6 +112,9 @@ dist
 # DynamoDB Local files
 .dynamodb/
 
+# Coverage directory
+coverage/
+
 # TernJS port file
 .tern-port
 
