@@ -24,6 +24,7 @@ describe('User', () => {
             models: [__dirname + '/models'],
         })
         await mockedSequelize.sync({ force: true })
+		User.init(mockedSequelize)
     })
 
     afterEach(async () => {
@@ -32,7 +33,7 @@ describe('User', () => {
     })
 
     afterAll(async () => {
-        server.close()
+        await server.close()
     })
 
     test('Get users', async () => {
