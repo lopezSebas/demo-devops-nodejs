@@ -155,10 +155,6 @@ stages:
           repository: 'nodejs/demo'
           command: 'buildAndPush'
           Dockerfile: '**/Dockerfile'
-      - task: Docker@2
-        inputs:
-          containerRegistry: 'sc-az-docker-devops'
-          command: 'login'
 
 - stage: DevSecOps_Container
   condition: succeededOrFailed()
@@ -168,6 +164,10 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'sc-az-docker-devops'
+          command: 'login'
       - task: trivy@1
         displayName: "Scan Container with Trivy"
         inputs:
@@ -190,7 +190,7 @@ stages:
 
 - stage: Deploy_Kubernetes
   condition: succeededOrFailed()
-  displayName: Deploy to an K8S
+  displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
       environment: approvals
