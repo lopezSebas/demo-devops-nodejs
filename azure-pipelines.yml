@@ -152,7 +152,7 @@ stages:
       - task: Docker@2
         inputs:
           containerRegistry: 'sc-az-docker-devops'
-          repository: 'nodejs/demo:$(Build.BuildId)'
+          repository: 'nodejs/demo:latest'
           command: 'buildAndPush'
           Dockerfile: '**/Dockerfile'
       - task: Docker@2
@@ -173,7 +173,7 @@ stages:
         inputs:
           version: 'latest'
           loginDockerConfig: true
-          image: 'nodejs/demo:$(Build.BuildId)'
+          image: 'nodejs/demo:latest'
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
@@ -181,7 +181,7 @@ stages:
         inputs:
           serviceConnectionEndpoint: 'Snyk'
           testType: 'container'
-          dockerImageName: 'nodejs/demo:$(Build.BuildId)'
+          dockerImageName: 'nodejs/demo:latest'
           monitorWhen: 'always'
           failOnIssues: false
           projectName: 'Container-node-js'
