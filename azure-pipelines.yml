@@ -168,6 +168,12 @@ stages:
         inputs:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'Azure-MS'
+          scriptType: 'batch'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'az login --service-principal -u $(APP_ID) -p $(APP_SECRET) --tenant $(TENANT_ID)'
       - task: Bash@3
         inputs:
           targetType: 'inline'
