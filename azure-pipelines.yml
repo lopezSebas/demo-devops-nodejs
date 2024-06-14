@@ -97,6 +97,7 @@ stages:
 
 - stage: Scan_Secrets
   displayName: Scan Secrets
+  condition: succeededOrFailed()
   jobs:
   - job: ubuntu
     displayName: "detect-secrets on Ubuntu Linux agent"
@@ -148,16 +149,15 @@ stages:
       vmImage: ubuntu-latest
     steps:
     
-      
       - task: Docker@2
         inputs:
-          containerRegistry: 'DockerHub'
-          repository: 'lopezsebas/test-node-js'
+          containerRegistry: 'sc-az-docker-devops'
+          repository: 'nodejs/demo'
           command: 'buildAndPush'
-          Dockerfile: 'Dockerfile'
+          Dockerfile: '**/Dockerfile'
       - task: Docker@2
         inputs:
-          containerRegistry: 'DockerHub'
+          containerRegistry: 'sc-az-docker-devops'
           command: 'login'
 
 - stage: DevSecOps_Container
