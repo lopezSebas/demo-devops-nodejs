@@ -148,7 +148,7 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    
+
       - task: Docker@2
         inputs:
           containerRegistry: 'sc-az-docker-devops'
@@ -204,3 +204,31 @@ stages:
                   echo Write your commands here
                   
                   echo Hello world
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(System.DefaultWorkingDirectory)/dmc.yaml'
+                secretType: 'dockerRegistry'
+                containerRegistryType: 'Azure Container Registry'
+                azureSubscriptionEndpointForSecrets: 'Azure-MS'
+                azureContainerRegistry: 'slldemoacr.azurecr.io'
+                secretName: 'mysecretkey'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                command: 'set'
+                arguments: 'image deployments/mhc-front mhc-front=$(ACR)/myhealth.web:$(Build.BuildId)'
+                secretType: 'dockerRegistry'
+                containerRegistryType: 'Azure Container Registry'
+                azureSubscriptionEndpointForSecrets: 'Azure-MS'
+                azureContainerRegistry: 'slldemoacr.azurecr.io'
+                secretName: 'mysecretkey'
+              enabled: false
