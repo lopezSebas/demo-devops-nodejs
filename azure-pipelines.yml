@@ -152,7 +152,7 @@ stages:
       - task: Docker@2
         inputs:
           containerRegistry: 'sc-az-docker-devops'
-          repository: 'nodejs/demo'
+          repository: 'nodejs/demo:$(Build.BuildId)'
           command: 'buildAndPush'
           Dockerfile: '**/Dockerfile'
       - task: Docker@2
