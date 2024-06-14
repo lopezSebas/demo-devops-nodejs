@@ -168,6 +168,26 @@ stages:
         inputs:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your commands here
+            
+            echo 'Hello world'
+            
+            ACR_PASSWORD=$(az acr credential show --name slldemoacr --resource-group AKSsll --query passwords[0].value --output tsv)
+            ACR_LOGIN_SERVER=$(az acr show --name slldemoacr --resource-group AKSsll --query loginServer --output tsv)
+            ACR_CREDENTIALS=$(echo -n "${ACR_LOGIN_SERVER}:${ACR_PASSWORD}" | base64 -w 0)
+            
+            cat << EOF > docker-config.json
+            {
+              "auths": {
+                "${ACR_LOGIN_SERVER}": {
+                  "auth": "${ACR_CREDENTIALS}"
+                }
+              }
+            }
       - task: trivy@1
         displayName: "Scan Container with Trivy"
         inputs:
