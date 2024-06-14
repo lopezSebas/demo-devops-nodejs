@@ -162,6 +162,7 @@ stages:
           command: 'login'
 
 - stage: DevSecOps_Container
+  condition: succeededOrFailed()
   displayName: DevSecOps Container
   jobs:
   - job: Build
@@ -189,6 +190,7 @@ stages:
           
 
 - stage: Deploy_Kubernetes
+  condition: succeededOrFailed()
   displayName: Deploy to an K8S
   jobs:
     - deployment: Deploy
