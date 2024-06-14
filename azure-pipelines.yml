@@ -149,7 +149,6 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-
       - task: Docker@2
         inputs:
           containerRegistry: 'sc-az-docker-devops'
@@ -174,7 +173,7 @@ stages:
         inputs:
           version: 'latest'
           loginDockerConfig: true
-          image: 'lopezsebas/test-node-js:$(Build.BuildId)'
+          image: 'nodejs/demo:$(Build.BuildId)'
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
@@ -182,10 +181,10 @@ stages:
         inputs:
           serviceConnectionEndpoint: 'Snyk'
           testType: 'container'
-          dockerImageName: 'lopezsebas/test-node-js:$(Build.BuildId)'
+          dockerImageName: 'nodejs/demo:$(Build.BuildId)'
           monitorWhen: 'always'
           failOnIssues: false
-          projectName: 'Container-test-node-js'
+          projectName: 'Container-node-js'
           organization: 'slorenzonl'
           
 
