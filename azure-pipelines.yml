@@ -142,6 +142,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
+  condition: succeededOrFailed()
   displayName: Container
   jobs:
   - job: Build
