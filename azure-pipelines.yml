@@ -175,7 +175,7 @@ stages:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
       - task: trivy@1
-        enabled: false
+        enabled: true
         displayName: "Scan Container with Trivy"
         inputs:
           version: 'latest'
@@ -184,7 +184,7 @@ stages:
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
-        enabled: false
+        enabled: true
         displayName: "Scan Container with Snyk"
         inputs:
           serviceConnectionEndpoint: 'Snyk'
