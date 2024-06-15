@@ -223,13 +223,14 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
+            #SP_DATA='{"appId":"452b8b09-71e9-480e-aa9b-2dc5fa8dab14","displayName":"TrivyTestsll","password":"","tenant":"b62c282c-205f-4896-b0f9-6c0f15c0448b"}'
 
             # must set TRIVY_USERNAME empty char
             export TRIVY_USERNAME=''
 
-            export AZURE_CLIENT_ID=$(echo $SP_DATA | jq -r '.appId')
-            export AZURE_CLIENT_SECRET=$(echo $SP_DATA | jq -r '.password')
-            export AZURE_TENANT_ID=$(echo $SP_DATA | jq -r '.tenant')
+            export AZURE_CLIENT_ID=$(APP_ID)
+            export AZURE_CLIENT_SECRET=$(APP_SECRET)
+            export AZURE_TENANT_ID=$(TENANT_ID)
 
             docker run -it --rm -v /tmp:/tmp \
             -e AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET -e AZURE_TENANT_ID \
