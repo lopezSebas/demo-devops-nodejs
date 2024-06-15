@@ -180,7 +180,6 @@ stages:
          sudo dpkg -i trivy_$(trivyVersion)_Linux-64bit.deb
          trivy -v
         displayName: 'Download and install Trivy'
-
       - task: CmdLine@2
         enabled: false
         displayName: "Run trivy scan"
@@ -190,6 +189,7 @@ stages:
               trivy image --severity HIGH,CRITICAL --format template --template "@templates/junit.tpl" -o junit-report-high-crit.xml $(imageName):$(tag)         
 
       - task: PublishTestResults@2
+        enabled: false
         inputs:
           testResultsFormat: 'JUnit'
           testResultsFiles: '**/junit-report-low-med.xml'
@@ -199,6 +199,7 @@ stages:
         condition: 'always()'   
 
       - task: PublishTestResults@2
+        enabled: false
         inputs:
           testResultsFormat: 'JUnit'
           testResultsFiles: '**/junit-report-high-crit.xml'
@@ -216,6 +217,13 @@ stages:
           inlineScript: 'az login --service-principal -u $(APP_ID) -p $(APP_SECRET) --tenant $(TENANT_ID)'
       - task: Bash@3
         enabled: false
+        inputs:
+          targetType: 'inline'
+          script: |
+
+
+      - task: Bash@3
+        enabled: true
         inputs:
           targetType: 'inline'
           script: |
@@ -242,7 +250,7 @@ stages:
             -e TRIVY_USERNAME -e TRIVY_PASSWORD -e AZURE_TENANT_ID \
             aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:$(Build.BuildId)
       - task: trivy@1
-        enabled: true
+        enabled: false
         displayName: "Scan Container with Trivy"
         inputs:
           version: 'latest'
