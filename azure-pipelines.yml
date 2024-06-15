@@ -207,13 +207,13 @@ stages:
               inputs:
                 buildType: 'current'
                 artifactName: 'drop'
-                targetPath: '$(Pipeline.Workspace)'
+                targetPath: '$(Pipeline.Workspace)/drop'
             - task: CmdLine@2
               inputs:
                 script: |
                   echo Write your commands here
-                  echo "El directorio del código fuente es: $(Pipeline.Workspace)"
-                  ls -al $(Pipeline.Workspace)
+                  echo "El directorio del código fuente es: $(Pipeline.Workspace)/drop"
+                  ls -al $(Pipeline.Workspace)/drop
                   echo Hello world
             - task: Kubernetes@1
               inputs:
