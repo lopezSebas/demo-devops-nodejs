@@ -55,7 +55,7 @@ stages:
   condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: DevSecOps
   jobs:
-  - job: Build
+  - job: Static_Code_Analysis
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -146,7 +146,7 @@ stages:
 
 - stage: Container
   condition: eq(variables['shouldExecuteTestStage'], 'true')
-  displayName: Container
+  displayName: Create Container
   jobs:
   - job: Build
     pool:
@@ -163,7 +163,7 @@ stages:
   condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: DevSecOps Container
   jobs:
-  - job: Build
+  - job: Scan_vulnerability
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -206,8 +206,8 @@ stages:
               inputs:
                 script: |
                   echo Write your commands here
-                  echo "El directorio del código fuente es: $(Build.SourcesDirectory)"
-                  ls -al $(Build.SourcesDirectory)
+                  echo "El directorio del código fuente es: $(Build.SourcesDirectory)/drop/"
+                  ls -al $(Build.SourcesDirectory)/drop/
                   echo Hello world
             - task: Kubernetes@1
               inputs:
