@@ -12,6 +12,11 @@ resources:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  trivyVersion: 0.9.2
+  tag: '$(Build.BuildNumber)'
+  imageName: 'nodejs/demo'
+
 stages:
 - stage: Code_Build
   displayName: Build Node JS
@@ -168,6 +173,39 @@ stages:
         inputs:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
+      
+      - script: |
+         sudo apt-get install rpm
+         wget https://github.com/aquasecurity/trivy/releases/download/v$(trivyVersion)/trivy_$(trivyVersion)_Linux-64bit.deb
+         sudo dpkg -i trivy_$(trivyVersion)_Linux-64bit.deb
+         trivy -v
+        displayName: 'Download and install Trivy'
+
+      - task: CmdLine@2
+        displayName: "Run trivy scan"
+        inputs:
+          script: |
+              trivy image --severity LOW,MEDIUM --format template --template "@templates/junit.tpl" -o junit-report-low-med.xml $(imageName):$(tag)         
+              trivy image --severity HIGH,CRITICAL --format template --template "@templates/junit.tpl" -o junit-report-high-crit.xml $(imageName):$(tag)         
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/junit-report-low-med.xml'
+          mergeTestResults: true
+          failTaskOnFailedTests: false
+          testRunTitle: 'Trivy - Low and Medium Vulnerabilities'
+        condition: 'always()'   
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '**/junit-report-high-crit.xml'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: 'Trivy - High and Critical Vulnerabilities'
+        condition: 'always()'             
+
       - task: AzureCLI@2
         enabled: false
         inputs:
@@ -206,6 +244,7 @@ stages:
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
+        enabled: false
         displayName: "Scan Container with Snyk"
         inputs:
           serviceConnectionEndpoint: 'Snyk'
