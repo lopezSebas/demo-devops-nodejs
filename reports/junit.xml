@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="3" failures="1" errors="0" time="11.744">
+  <testsuite name="User" errors="0" failures="1" skipped="0" timestamp="2024-06-13T23:10:13" time="11.322" tests="3">
+    <testcase classname="User Get users" name="User Get users" time="0.195">
+      <failure>Error: listen EADDRINUSE: address already in use :::8000
+    at Server.setupListenHandle [as _listen2] (node:net:1872:16)
+    at listenInCluster (node:net:1920:12)
+    at Server.listen (node:net:2008:7)
+    at Function.listen (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\express\lib\application.js:635:24)
+    at Object.listen (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\index.js:13:20)
+    at Runtime._execModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:1429:24)
+    at Runtime._loadModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:1013:12)
+    at Runtime.requireModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:873:12)
+    at Runtime.requireModuleOrMock (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:1039:21)
+    at Object.require (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\index.test.js:1:1)
+    at Runtime._execModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:1429:24)
+    at Runtime._loadModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:1013:12)
+    at Runtime.requireModule (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runtime\build\index.js:873:12)
+    at jestAdapter (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:77:13)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runTestInternal (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Sebas\Documents\DevOps\GitHub\Node JS\demo-devops-nodejs\node_modules\jest-runner\build\runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="User Get user" name="User Get user" time="0.769">
+    </testcase>
+    <testcase classname="User Create user" name="User Create user" time="0.423">
+    </testcase>
+  </testsuite>
+</testsuites>
