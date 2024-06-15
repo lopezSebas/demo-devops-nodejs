@@ -174,106 +174,13 @@ stages:
         inputs:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
-      
-      - script: |
-         sudo apt-get install rpm
-         wget https://github.com/aquasecurity/trivy/releases/download/v$(trivyVersion)/trivy_$(trivyVersion)_Linux-64bit.deb
-         sudo dpkg -i trivy_$(trivyVersion)_Linux-64bit.deb
-         trivy -v
-        displayName: 'Download and install Trivy'
-        enabled: false
-      - task: CmdLine@2
-        enabled: false
-        displayName: "Run trivy scan"
-        inputs:
-          script: |
-              trivy image --severity LOW,MEDIUM --format template --template "@templates/junit.tpl" -o junit-report-low-med.xml $(imageName):$(tag)         
-              trivy image --severity HIGH,CRITICAL --format template --template "@templates/junit.tpl" -o junit-report-high-crit.xml $(imageName):$(tag)         
-
-      - task: PublishTestResults@2
-        enabled: false
-        inputs:
-          testResultsFormat: 'JUnit'
-          testResultsFiles: '**/junit-report-low-med.xml'
-          mergeTestResults: true
-          failTaskOnFailedTests: false
-          testRunTitle: 'Trivy - Low and Medium Vulnerabilities'
-        condition: 'always()'   
-
-      - task: PublishTestResults@2
-        enabled: false
-        inputs:
-          testResultsFormat: 'JUnit'
-          testResultsFiles: '**/junit-report-high-crit.xml'
-          mergeTestResults: true
-          failTaskOnFailedTests: true
-          testRunTitle: 'Trivy - High and Critical Vulnerabilities'
-        condition: 'always()'             
-
-      - task: AzureCLI@2
-        enabled: false
-        inputs:
-          azureSubscription: 'Azure-MS'
-          scriptType: 'batch'
-          scriptLocation: 'inlineScript'
-          inlineScript: 'az login --service-principal -u $(APP_ID) -p $(APP_SECRET) --tenant $(TENANT_ID)'
-      - task: Bash@3
-        enabled: true
-        displayName: "bash 1"
-        inputs:
-          targetType: 'inline'
-          script: |
-
-            # must set TRIVY_USERNAME empty char
-            export TRIVY_USERNAME=''
-
-            echo 'test 1'
-
-            export AZURE_CLIENT_ID=$(APP_ID)
-            export AZURE_CLIENT_SECRET=$(APP_SECRET)
-            export AZURE_TENANT_ID=$(TENANT_ID)
-
-            echo 'test 2'
-
-            docker run -it --rm -v /tmp:/tmp \
-            -e AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET -e AZURE_TENANT_ID \
-            aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:469
-
-            echo 'test 3'
-      - task: Bash@3
-        enabled: true
-        inputs:
-          targetType: 'inline'
-          script: |
-            # Write your commands here
-            export TRIVY_AUTH_URL=https://slldemoacr.azurecr.io
-            export TRIVY_USERNAME=$(APP_ID)
-            export TRIVY_PASSWORD=$(APP_SECRET)
-            export AZURE_TENANT_ID=b62c282c-205f-4896-b0f9-6c0f15c0448b
-            echo 'Hello world'
-            cat << EOF > docker-config.json
-            {
-              "auths": {
-                "slldemoacr.azurecr.io": {
-                  "auth": "c2xsZGVtb2Fjci5henVyZWNyLmlvOkV6OUNxbyt0Nkgwd2dDaTZUS2xCd3VmeDBTc08vNW9oaVAzMllOZ1RmNCtBQ1JBV3lqRzQ="
-                }
-              }
-            }
-
-            echo 'entró aquí'
-            export TRIVY_AUTH_URL=https://slldemoacr.azurecr.io
-            export DOCKER_CONFIG=/path/to/docker-config.json
-            
-            docker run -it --rm -v /tmp:/tmp \
-            -e TRIVY_USERNAME -e TRIVY_PASSWORD -e AZURE_TENANT_ID \
-            aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:$(Build.BuildId)
       - task: trivy@1
         enabled: false
         displayName: "Scan Container with Trivy"
         inputs:
           version: 'latest'
           loginDockerConfig: true
-          image: 'nodejs/demo:$(Build.BuildId)'
+          image: 'slldemoacr.azurecr.io/nodejs/demo:477'
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
@@ -282,7 +189,7 @@ stages:
         inputs:
           serviceConnectionEndpoint: 'Snyk'
           testType: 'container'
-          dockerImageName: 'nodejs/demo:$(Build.BuildId)'
+          dockerImageName: 'slldemoacr.azurecr.io/nodejs/demo:477'
           monitorWhen: 'always'
           failOnIssues: false
           projectName: 'Container-node-js'
