@@ -182,6 +182,7 @@ stages:
         displayName: 'Download and install Trivy'
 
       - task: CmdLine@2
+        enabled: false
         displayName: "Run trivy scan"
         inputs:
           script: |
@@ -219,23 +220,29 @@ stages:
           targetType: 'inline'
           script: |
             # Write your commands here
-            
+            export TRIVY_AUTH_URL=https://slldemoacr.azurecr.io
+            export TRIVY_USERNAME=$(APP_ID)
+            export TRIVY_PASSWORD=$(APP_SECRET)
+            export AZURE_TENANT_ID=b62c282c-205f-4896-b0f9-6c0f15c0448b
             echo 'Hello world'
-            
-            ACR_PASSWORD=$(az acr credential show --name slldemoacr --resource-group AKSsll --query passwords[0].value --output tsv)
-            ACR_LOGIN_SERVER=$(az acr show --name slldemoacr --resource-group AKSsll --query loginServer --output tsv)
-            ACR_CREDENTIALS=$(echo -n "${ACR_LOGIN_SERVER}:${ACR_PASSWORD}" | base64 -w 0)
-            
             cat << EOF > docker-config.json
             {
               "auths": {
-                "${ACR_LOGIN_SERVER}": {
-                  "auth": "${ACR_CREDENTIALS}"
+                "slldemoacr.azurecr.io": {
+                  "auth": "c2xsZGVtb2Fjci5henVyZWNyLmlvOkV6OUNxbyt0Nkgwd2dDaTZUS2xCd3VmeDBTc08vNW9oaVAzMllOZ1RmNCtBQ1JBV3lqRzQ="
                 }
               }
             }
+
+            echo 'entró aquí'
+            export TRIVY_AUTH_URL=https://slldemoacr.azurecr.io
+            export DOCKER_CONFIG=/path/to/docker-config.json
+            
+            docker run -it --rm -v /tmp:/tmp \
+            -e TRIVY_USERNAME -e TRIVY_PASSWORD -e AZURE_TENANT_ID \
+            aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:$(Build.BuildId)
       - task: trivy@1
-        enabled: false
+        enabled: true
         displayName: "Scan Container with Trivy"
         inputs:
           version: 'latest'
