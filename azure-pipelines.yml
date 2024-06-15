@@ -219,6 +219,7 @@ stages:
           inlineScript: 'az login --service-principal -u $(APP_ID) -p $(APP_SECRET) --tenant $(TENANT_ID)'
       - task: Bash@3
         enabled: true
+        displayName: "bash 1"
         inputs:
           targetType: 'inline'
           script: |
@@ -226,14 +227,19 @@ stages:
             # must set TRIVY_USERNAME empty char
             export TRIVY_USERNAME=''
 
+            echo 'test 1'
+
             export AZURE_CLIENT_ID=$(APP_ID)
             export AZURE_CLIENT_SECRET=$(APP_SECRET)
             export AZURE_TENANT_ID=$(TENANT_ID)
+
+            echo 'test 2'
 
             docker run -it --rm -v /tmp:/tmp \
             -e AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET -e AZURE_TENANT_ID \
             aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:469
 
+            echo 'test 3'
       - task: Bash@3
         enabled: true
         inputs:
