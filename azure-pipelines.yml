@@ -190,7 +190,6 @@ stages:
           projectName: 'Container-node-js'
           organization: 'slorenzonl'
           
-
 - stage: Deploy_Kubernetes
   condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Deploy to a K8S
@@ -208,6 +207,7 @@ stages:
                 script: |
                   echo Write your commands here
                   echo "El directorio del código fuente es: $(Build.SourcesDirectory)"
+                  ls -al $(Build.SourcesDirectory)
                   echo Hello world
             - task: Kubernetes@1
               inputs:
