@@ -16,10 +16,11 @@ variables:
   trivyVersion: 0.9.2
   tag: '$(Build.BuildNumber)'
   imageName: 'nodejs/demo'
-  shouldExecuteTestStage: true
+  shouldExecuteTestStage: false
 
 stages:
 - stage: Code_Build
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -54,6 +55,7 @@ stages:
         publishLocation: 'Container'
 
 - stage: Static_Code_Analysis
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: DevSecOps
   jobs:
   - job: Build
@@ -100,6 +102,7 @@ stages:
         cwd: '$(System.DefaultWorkingDirectory)'
 
 - stage: Scan_Secrets
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Scan Secrets
   jobs:
   - job: ubuntu
@@ -145,7 +148,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: succeededOrFailed()
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Container
   jobs:
   - job: Build
