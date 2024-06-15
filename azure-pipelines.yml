@@ -147,7 +147,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
   - job: Build
@@ -219,7 +219,7 @@ stages:
                 kubernetesCluster: 'sll-demo-aks'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/nodejs-demo-aks.yaml'
+                configuration: '$(Pipeline.Workspace)/drop/nodejs-demo-aks.yml'
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
                 azureSubscriptionEndpointForSecrets: 'Azure-MS'
