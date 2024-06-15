@@ -14,6 +14,7 @@ pool:
 
 variables:
   shouldExecuteTestStage: false
+  ACR: slldemoacr.azurecr.io
 
 stages:
 - stage: Code_Build
@@ -203,11 +204,6 @@ stages:
         runOnce:
           deploy:
             steps:
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                buildType: 'current'
-                artifactName: 'drop'
-                targetPath: '$(Pipeline.Workspace)/drop'
             - task: CmdLine@2
               inputs:
                 script: |
@@ -223,7 +219,7 @@ stages:
                 kubernetesCluster: 'sll-demo-aks'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/dmc.yaml'
+                configuration: '$(Pipeline.Workspace)/drop/nodejs-demo-aks.yaml'
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
                 azureSubscriptionEndpointForSecrets: 'Azure-MS'
@@ -236,10 +232,9 @@ stages:
                 azureResourceGroup: 'AKSsll'
                 kubernetesCluster: 'sll-demo-aks'
                 command: 'set'
-                arguments: 'image deployments/mhc-front mhc-front=$(ACR)/myhealth.web:$(Build.BuildId)'
+                arguments: 'image nodejs/demo demo=$(ACR)/demo:$(Build.BuildId)'
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
                 azureSubscriptionEndpointForSecrets: 'Azure-MS'
                 azureContainerRegistry: 'slldemoacr.azurecr.io'
                 secretName: 'mysecretkey'
-              enabled: false
