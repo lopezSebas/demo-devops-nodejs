@@ -150,7 +150,7 @@ stages:
   condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
-  - job: Build
+  - job: Create_Container
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -219,7 +219,7 @@ stages:
                 kubernetesCluster: 'sll-demo-aks'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/nodejs-demo-aks.yml'
+                configuration: '$(Pipeline.Workspace)/drop/kubernetes/nodejs-demo-aks.yml'
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
                 azureSubscriptionEndpointForSecrets: 'Azure-MS'
