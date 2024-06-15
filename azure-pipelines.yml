@@ -163,7 +163,7 @@ stages:
           Dockerfile: '**/Dockerfile'
 
 - stage: DevSecOps_Container
-  condition: succeededOrFailed()
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: DevSecOps Container
   jobs:
   - job: Build
@@ -218,7 +218,7 @@ stages:
           scriptLocation: 'inlineScript'
           inlineScript: 'az login --service-principal -u $(APP_ID) -p $(APP_SECRET) --tenant $(TENANT_ID)'
       - task: Bash@3
-        enabled: false
+        enabled: true
         inputs:
           targetType: 'inline'
           script: |
