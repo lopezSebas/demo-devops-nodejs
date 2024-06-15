@@ -212,8 +212,8 @@ stages:
               inputs:
                 script: |
                   echo Write your commands here
-                  echo "El directorio del código fuente es: $(Build.SourcesDirectory)/drop/"
-                  ls -al $(Build.SourcesDirectory)/drop/
+                  echo "El directorio del código fuente es: $(System.ArtifactsDirectory)"
+                  ls -al $(System.ArtifactsDirectory)
                   echo Hello world
             - task: Kubernetes@1
               inputs:
