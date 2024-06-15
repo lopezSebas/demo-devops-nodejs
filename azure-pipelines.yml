@@ -232,7 +232,7 @@ stages:
                 azureResourceGroup: 'AKSsll'
                 kubernetesCluster: 'sll-demo-aks'
                 command: 'set'
-                arguments: 'image deployment/demo demo=$(ACR)/nodejs/demo:$(Build.BuildId)'
+                arguments: 'image deployments/demonodejs demonodejs=$(ACR)/nodejs/demo:$(Build.BuildId)'
                 secretType: 'dockerRegistry'
                 containerRegistryType: 'Azure Container Registry'
                 azureSubscriptionEndpointForSecrets: 'Azure-MS'
