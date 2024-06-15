@@ -17,7 +17,7 @@ variables:
 
 stages:
 - stage: Code_Build
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
