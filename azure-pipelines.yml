@@ -19,6 +19,7 @@ variables:
 
 stages:
 - stage: Code_Build
+  condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -55,6 +56,7 @@ stages:
         publishLocation: 'Container'
 
 - stage: Static_Code_Analysis
+  condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
   displayName: DevSecOps
   jobs:
   - job: Build
@@ -101,8 +103,8 @@ stages:
         cwd: '$(System.DefaultWorkingDirectory)'
 
 - stage: Scan_Secrets
+  condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
   displayName: Scan Secrets
-  condition: succeededOrFailed()
   jobs:
   - job: ubuntu
     displayName: "detect-secrets on Ubuntu Linux agent"
@@ -180,6 +182,7 @@ stages:
          sudo dpkg -i trivy_$(trivyVersion)_Linux-64bit.deb
          trivy -v
         displayName: 'Download and install Trivy'
+        enabled: false
       - task: CmdLine@2
         enabled: false
         displayName: "Run trivy scan"
@@ -221,6 +224,16 @@ stages:
           targetType: 'inline'
           script: |
 
+            # must set TRIVY_USERNAME empty char
+            export TRIVY_USERNAME=''
+
+            export AZURE_CLIENT_ID=$(echo $SP_DATA | jq -r '.appId')
+            export AZURE_CLIENT_SECRET=$(echo $SP_DATA | jq -r '.password')
+            export AZURE_TENANT_ID=$(echo $SP_DATA | jq -r '.tenant')
+
+            docker run -it --rm -v /tmp:/tmp \
+            -e AZURE_CLIENT_ID -e AZURE_CLIENT_SECRET -e AZURE_TENANT_ID \
+            aquasec/trivy image slldemoacr.azurecr.io/nodejs/demo:469
 
       - task: Bash@3
         enabled: true
