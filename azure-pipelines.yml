@@ -13,9 +13,6 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  trivyVersion: 0.9.2
-  tag: '$(Build.BuildNumber)'
-  imageName: 'nodejs/demo'
   shouldExecuteTestStage: false
 
 stages:
@@ -163,7 +160,7 @@ stages:
           Dockerfile: '**/Dockerfile'
 
 - stage: DevSecOps_Container
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: DevSecOps Container
   jobs:
   - job: Build
@@ -175,21 +172,19 @@ stages:
           containerRegistry: 'sc-az-docker-devops'
           command: 'login'
       - task: trivy@1
-        enabled: true
         displayName: "Scan Container with Trivy"
         inputs:
           version: 'latest'
           loginDockerConfig: true
-          image: 'slldemoacr.azurecr.io/nodejs/demo:477'
+          image: 'slldemoacr.azurecr.io/nodejs/demo:$(Build.BuildId)'
           severities: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
           exitCode: '0'
       - task: SnykSecurityScan@1
-        enabled: true
         displayName: "Scan Container with Snyk"
         inputs:
           serviceConnectionEndpoint: 'Snyk'
           testType: 'container'
-          dockerImageName: 'slldemoacr.azurecr.io/nodejs/demo:477'
+          dockerImageName: 'slldemoacr.azurecr.io/nodejs/demo:$(Build.BuildId)'
           monitorWhen: 'always'
           failOnIssues: false
           projectName: 'Container-node-js'
@@ -212,7 +207,7 @@ stages:
               inputs:
                 script: |
                   echo Write your commands here
-                  
+                  echo "El directorio del código fuente es: $(Build.SourcesDirectory)"
                   echo Hello world
             - task: Kubernetes@1
               inputs:
