@@ -3,8 +3,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nodejs-demo
+  labels:
+    app: nodejs-demo
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: nodejs-demo
