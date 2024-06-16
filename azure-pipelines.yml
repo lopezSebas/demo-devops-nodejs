@@ -13,8 +13,9 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  shouldExecuteTestStage: false
+  shouldExecuteTestStage: true
   ACR: slldemoacr.azurecr.io
+  namespace: monitoring
 
 stages:
 - stage: Code_Build
@@ -233,3 +234,45 @@ stages:
                 azureContainerRegistry: 'slldemoacr.azurecr.io'
                 secretName: 'mysecretkey'
             
+- stage: Deploy_Monitoring
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  displayName: Deploy to a Prometeus and Grafana
+  jobs:
+    - deployment: Deploy
+      environment: approvals
+      pool:
+        vmImage: "ubuntu-latest"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/moniring-role.yaml'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/configmap-prometheus.yaml'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
