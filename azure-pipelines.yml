@@ -19,7 +19,7 @@ variables:
 
 stages:
 - stage: Code_Build
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -246,6 +246,14 @@ stages:
         runOnce:
           deploy:
             steps:
+            - task: Bash@3
+              inputs:
+                targetType: 'inline'
+                script: |
+                  echo "Copiando archivo desde el repositorio..."
+                  cp $(Build.SourcesDirectory)/monitoring $(System.DefaultWorkingDirectory)/
+                  echo "$(System.DefaultWorkingDirectory)"
+              displayName: 'Copiar archivo desde el repositorio'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -263,7 +271,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/authorization-prometheus.yaml'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/authorization-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -273,7 +281,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/configmap-prometheus.yaml'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/configmap-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -283,7 +291,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/deployment-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -293,7 +301,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/kube-state-metrics'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/kube-state-metrics'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -303,7 +311,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/alert-manager'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/alert-manager'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -313,4 +321,4 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/grafana'
+                configuration: '$(System.DefaultWorkingDirectory)/monitoring/grafana'
