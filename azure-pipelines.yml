@@ -253,6 +253,14 @@ stages:
                 azureResourceGroup: 'AKSsll'
                 kubernetesCluster: 'sll-demo-aks'
                 namespace: '$(namespace)'
+                command: 'create'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
                 configuration: '$(Pipeline.Workspace)/drop/monitoring/authorization-prometheus.yaml'
