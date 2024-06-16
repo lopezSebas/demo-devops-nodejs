@@ -30,7 +30,6 @@ stages:
       inputs:
         Contents: '**/*.yaml'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
-        CleanTargetFolder: true
         OverWrite: true
 
 - stage: Code_Build
