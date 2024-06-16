@@ -26,12 +26,6 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - task: CmdLine@2
-      inputs:
-        script: |
-          echo Write your commands here
-          
-          echo "$(agent.builddirectory)"
     - task: CopyFiles@2
       inputs:
         Contents: '**/*.yaml'
@@ -292,7 +286,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/authorization-prometheus.yaml'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/authorization-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -302,7 +296,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/configmap-prometheus.yaml'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/configmap-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -312,7 +306,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/deployment-prometheus.yaml'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/deployment-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -322,7 +316,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/kube-state-metrics'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/kube-state-metrics'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -332,7 +326,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/alert-manager'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/alert-manager'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -342,4 +336,4 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(System.DefaultWorkingDirectory)/monitoring/grafana'
+                configuration: '$(Build.ArtifactStagingDirectory)/monitoring/grafana'
