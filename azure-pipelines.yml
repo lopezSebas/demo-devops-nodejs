@@ -18,6 +18,27 @@ variables:
   namespace: monitoring
 
 stages:
+- stage: d
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  displayName: Copy Files
+  jobs:
+  - job: Copy_Files
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: CmdLine@2
+      inputs:
+        script: |
+          echo Write your commands here
+          
+          echo "$(agent.builddirectory)"
+    - task: CopyFiles@2
+      inputs:
+        Contents: '**/*.yaml'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        CleanTargetFolder: true
+        OverWrite: true
+
 - stage: Code_Build
   condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
@@ -252,7 +273,7 @@ stages:
                 script: |
                   echo "Copiando archivo desde el repositorio..."
                   cp $(Build.SourcesDirectory)/monitoring $(System.DefaultWorkingDirectory)/
-                  echo "$(System.DefaultWorkingDirectory)"
+                  echo "$(Build.ArtifactStagingDirectory)"
               displayName: 'Copiar archivo desde el repositorio'
             - task: Kubernetes@1
               inputs:
