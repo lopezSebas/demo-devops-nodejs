@@ -266,7 +266,16 @@ stages:
                 command: 'apply'
                 useConfigurationFile: true
                 configuration: '$(Pipeline.Workspace)/drop/monitoring/configmap-prometheus.yaml'
-            
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -275,20 +284,7 @@ stages:
                 kubernetesCluster: 'sll-demo-aks'
                 namespace: '$(namespace)'
                 command: 'set'
-                useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
-                
-            - task: Kubernetes@1
-              enabled: false
-              inputs:
-                connectionType: 'Azure Resource Manager'
-                azureSubscriptionEndpoint: 'Azure-MS'
-                azureResourceGroup: 'AKSsll'
-                kubernetesCluster: 'sll-demo-aks'
-                namespace: '$(namespace)'
-                command: 'apply'
-                useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
+                arguments: 'deployment prometheus-deployment --containers="*=prometheus*" --set=args[0]="--storage.tsdb.retention.time=24h"'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -298,7 +294,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/kube-state-metrics'
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/alert-manager/configmap-alert-manager.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -308,7 +304,7 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/alert-manager'
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/alert-manager/pvc-alert-manager.yaml'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
@@ -318,4 +314,42 @@ stages:
                 namespace: '$(namespace)'
                 command: 'apply'
                 useConfigurationFile: true
-                configuration: '$(Pipeline.Workspace)/drop/monitoring/grafana'
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/alert-manager/deployment-alert-manager.yaml'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'set'
+                arguments: 'deployment alertmanager --containers="*=alertmanager*" --set=image=prom/alertmanager:v0.21.0'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/grafana/configmap-grafana.yaml'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/grafana/deployment-grafana.yaml'
+            - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'set'
+                arguments: 'deployment grafana --containers="*=grafana*" --set=image=grafana/grafana:7.5.7 --set=resources.limits.memory=2Gi --set=resources.requests.cpu=1'
