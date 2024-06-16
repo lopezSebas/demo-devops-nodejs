@@ -266,7 +266,20 @@ stages:
                 command: 'apply'
                 useConfigurationFile: true
                 configuration: '$(Pipeline.Workspace)/drop/monitoring/configmap-prometheus.yaml'
+            
             - task: Kubernetes@1
+              inputs:
+                connectionType: 'Azure Resource Manager'
+                azureSubscriptionEndpoint: 'Azure-MS'
+                azureResourceGroup: 'AKSsll'
+                kubernetesCluster: 'sll-demo-aks'
+                namespace: '$(namespace)'
+                command: 'set'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/monitoring/deployment-prometheus.yaml'
+                
+            - task: Kubernetes@1
+              enabled: false
               inputs:
                 connectionType: 'Azure Resource Manager'
                 azureSubscriptionEndpoint: 'Azure-MS'
