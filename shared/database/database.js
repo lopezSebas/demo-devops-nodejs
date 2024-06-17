@@ -3,9 +3,14 @@ import { Sequelize } from 'sequelize'
 
 dotenv.config()
 
-const sequelize = new Sequelize('test-db', process.env.DATABASE_USER, process.env.DATABASE_PASSWORD, {
+// Decodificar valores codificados en Base64
+const databaseName = atob(process.env.DATABASE_NAME);
+const databaseUser = atob(process.env.DATABASE_USER);
+const databasePassword = atob(process.env.DATABASE_PASSWORD);
+
+const sequelize = new Sequelize('test-db', databaseUser, databasePassword, {
   dialect: 'sqlite',
-  host: process.env.DATABASE_NAME
+  host: databaseName
 })
 
 export default sequelize
