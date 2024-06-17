@@ -33,7 +33,9 @@ stages:
     - script: |
         npm install 
       displayName: 'Install dependencies'
-    - script: npm test -- --coverage
+    - script: |
+        export NODE_ENV=test
+        npm test -- --coverage
       displayName: 'Run Tests with coverage'
     - task: PublishTestResults@2
       enabled: false
