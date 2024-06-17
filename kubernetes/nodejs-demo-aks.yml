@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: "add configMap"
+    kubernetes.io/change-cause: "add certs tls"
   name: nodejs-demo
   labels:
     app: nodejs-demo
@@ -31,7 +31,15 @@ spec:
             memory: 512Mi
         env:
         - name: NODE_ENV
-          value: production
+              value: production
+        volumeMounts:
+        - name: tls-certs
+          mountPath: "/etc/tls"
+          readOnly: true
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: my-tls-secret
 ---
 apiVersion: v1
 kind: Service
@@ -40,6 +48,8 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 8000
+  - name: https
+    port: 443
+    targetPort: 8000
   selector:
     app: nodejs-demo
