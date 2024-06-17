@@ -4,7 +4,7 @@ metadata:
   name: db-secret
   namespace: default
 type: Opaque
-data:
+StringData:
   DATABASE_NAME: __DATABASE_NAME__
   DATABASE_USER: __DATABASE_USER__
   DATABASE_PASSWORD: __DATABASE_PASSWORD__
