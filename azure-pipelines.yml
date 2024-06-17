@@ -18,44 +18,8 @@ variables:
   namespace: monitoring
 
 stages:
-- stage: Test
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
-  displayName: Build Node JS
-  jobs:
-  - job: Build_Code
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - task: SonarQubePrepare@6
-      inputs:
-        SonarQube: 'SonarQube'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'demo-nodejs'
-        cliProjectName: 'demo-nodejs'
-        cliSources: '.'
-        extraProperties: |
-          # Additional properties that will be passed to the scanner, 
-          # Put one key=value per line, example:
-          # sonar.exclusions=**/*.bin
-          sonar.host.url=http://20.9.136.190:9000/
-          sonar.login=$(LOGINSQ)
-          sonar.projectVersion=1.0
-          sonar.sources=.
-          sonar.exclusions=node_modules/**, coverage/**
-          sonar.tests=.
-          sonar.test.inclusions=**/*.test.js, **/*.spec.js
-          sonar.sourceEncoding=UTF-8
-          sonar.javascript.lcov.reportPaths=coverage/lcov.info
-    - task: SonarQubeAnalyze@6
-      inputs:
-        jdkversion: 'JAVA_HOME_17_X64'      
-    - task: SonarQubePublish@6
-      enabled: false
-      inputs:
-        pollingTimeoutSec: '300'
 - stage: Code_Build
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -115,7 +79,34 @@ stages:
     - task: SonarCloudPublish@2
       inputs:
         pollingTimeoutSec: '300'
-
+    - task: SonarQubePrepare@6
+      inputs:
+        SonarQube: 'SonarQube'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'demo-nodejs'
+        cliProjectName: 'demo-nodejs'
+        cliSources: '.'
+        extraProperties: |
+          # Additional properties that will be passed to the scanner, 
+          # Put one key=value per line, example:
+          # sonar.exclusions=**/*.bin
+          sonar.host.url=http://20.9.136.190:9000/
+          sonar.login=$(LOGINSQ)
+          sonar.projectVersion=1.0
+          sonar.sources=.
+          sonar.exclusions=node_modules/**, coverage/**
+          sonar.tests=.
+          sonar.test.inclusions=**/*.test.js, **/*.spec.js
+          sonar.sourceEncoding=UTF-8
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+    - task: SonarQubeAnalyze@6
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'      
+    - task: SonarQubePublish@6
+      enabled: false
+      inputs:
+        pollingTimeoutSec: '300'
     - task: SnykSecurityScan@1
       displayName: Snyk SAST scan for code vulnerabilities
       inputs:
