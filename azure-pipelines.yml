@@ -15,11 +15,37 @@ pool:
 variables:
   shouldExecuteTestStage: true
   ACR: slldemoacr.azurecr.io
-  namespace: monitoring
 
 stages:
-- stage: Code_Build
+- stage: IaC
   condition: eq(variables['shouldExecuteTestStage'], 'true')
+  displayName: Build Terraform
+  jobs:
+  - job: Build_Terraform
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)/terraform-manifests'
+        artifact: 'terraform-manifests-out'
+        publishLocation: 'pipeline'
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform-manifests'
+        backendServiceArm: 'Azure-MS'
+        backendAzureRmResourceGroupName: 'AKSsll'
+        backendAzureRmStorageAccountName: 'terraformstatexlrwdrzs'
+        backendAzureRmContainerName: 'tfstatefiles'
+        backendAzureRmKey: 'aks-base.tfstate'
+
+- stage: Code_Build
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -185,7 +211,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
   - job: Create_Container
@@ -231,7 +257,7 @@ stages:
           organization: 'slorenzonl'
           
 - stage: Deploy_Kubernetes
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
