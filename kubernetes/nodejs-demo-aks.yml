@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: "add certs tls"
+    kubernetes.io/change-cause: "add DNS"
   name: nodejs-demo
   labels:
     app: nodejs-demo
@@ -49,7 +49,31 @@ spec:
   type: LoadBalancer
   ports:
   - name: https
-    port: 8000
+    port: 443
     targetPort: 8000
   selector:
     app: nodejs-demo
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nodejs-demo-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - xelaexpeditionsrx.com
+    secretName: my-tls-secret
+  rules:
+  - host: xelaexpeditionsrx.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nodejs-demo
+            port:
+              number: 8000
