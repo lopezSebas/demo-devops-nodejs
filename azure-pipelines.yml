@@ -18,8 +18,43 @@ variables:
   namespace: monitoring
 
 stages:
-- stage: Code_Build
+- stage: Test
   condition: eq(variables['shouldExecuteTestStage'], 'true')
+  displayName: Build Node JS
+  jobs:
+  - job: Build_Code
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: SonarQubePrepare@6
+      inputs:
+        SonarQube: 'SonarQube'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        cliProjectKey: 'demo-nodejs'
+        cliProjectName: 'demo-nodejs'
+        cliSources: '.'
+        extraProperties: |
+          # Additional properties that will be passed to the scanner, 
+          # Put one key=value per line, example:
+          # sonar.exclusions=**/*.bin
+          sonar.host.url=http://20.9.136.190:9000/
+          sonar.login=6VkayHmn0eXz06sYqCEY2S8xdRJF8Iwt+kl365F2WTU=
+          sonar.projectVersion=1.0
+          sonar.sources=.
+          sonar.exclusions=node_modules/**, coverage/**
+          sonar.tests=.
+          sonar.test.inclusions=**/*.test.js, **/*.spec.js
+          sonar.sourceEncoding=UTF-8
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+    - task: SonarQubeAnalyze@6
+      inputs:
+        jdkversion: 'JAVA_HOME_17_X64'      
+    - task: SonarQubePublish@6
+      inputs:
+        pollingTimeoutSec: '300'
+- stage: Code_Build
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -55,33 +90,6 @@ stages:
         PathtoPublish: '$(Build.SourcesDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
-    - task: SonarQubePrepare@6
-      inputs:
-        SonarQube: 'SonarQube'
-        scannerMode: 'CLI'
-        configMode: 'manual'
-        cliProjectKey: 'demo-nodejs'
-        cliProjectName: 'demo-nodejs'
-        cliSources: '.'
-        extraProperties: |
-          # Additional properties that will be passed to the scanner, 
-          # Put one key=value per line, example:
-          # sonar.exclusions=**/*.bin
-          sonar.host.url=http://20.9.136.190:9000/
-          sonar.login=6VkayHmn0eXz06sYqCEY2S8xdRJF8Iwt+kl365F2WTU=
-          sonar.projectVersion=1.0
-          sonar.sources=.
-          sonar.exclusions=node_modules/**, coverage/**
-          sonar.tests=.
-          sonar.test.inclusions=**/*.test.js, **/*.spec.js
-          sonar.sourceEncoding=UTF-8
-          sonar.javascript.lcov.reportPaths=coverage/lcov.info
-    - task: SonarQubeAnalyze@6
-      inputs:
-        jdkversion: 'JAVA_HOME_17_X64'      
-    - task: SonarQubePublish@6
-      inputs:
-        pollingTimeoutSec: '300'
 
 - stage: Static_Code_Analysis
   condition: eq(variables['shouldExecuteTestStage'], 'false')
@@ -177,7 +185,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
   - job: Create_Container
