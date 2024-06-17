@@ -284,7 +284,7 @@ stages:
                 kubernetesCluster: 'sll-demo-aks'
                 namespace: '$(namespace)'
                 command: 'set'
-                arguments: 'deployment prometheus-deployment --containers="*=prometheus*" --set=args[0]="--storage.tsdb.retention.time=24h"'
+                arguments: 'image deployments/prometheus prometheus=prom/prometheus'
             - task: Kubernetes@1
               inputs:
                 connectionType: 'Azure Resource Manager'
