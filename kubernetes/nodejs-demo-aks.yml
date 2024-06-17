@@ -2,6 +2,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kubernetes.io/change-cause: "add configMap"
   name: nodejs-demo
   labels:
     app: nodejs-demo
