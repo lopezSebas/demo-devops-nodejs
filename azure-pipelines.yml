@@ -39,7 +39,7 @@ stages:
           # Put one key=value per line, example:
           # sonar.exclusions=**/*.bin
           sonar.host.url=http://20.9.136.190:9000/
-          sonar.login=6VkayHmn0eXz06sYqCEY2S8xdRJF8Iwt+kl365F2WTU=
+          sonar.login=5545bd9aff741601f66ede81dbaf2789f98913a1
           sonar.projectVersion=1.0
           sonar.sources=.
           sonar.exclusions=node_modules/**, coverage/**
