@@ -13,7 +13,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: "add database secrets"
+    kubernetes.io/change-cause: "add database secrets and specific key"
   name: nodejs-demo
   labels:
     app: nodejs-demo
@@ -51,10 +51,12 @@ spec:
           valueFrom:
             secretKeyRef:
               name: db-secret
+              key: DATABASE_USER
         - name: DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
               name: db-secret
+              key: DATABASE_PASSWORD
         volumeMounts:
         - name: tls-certs
           mountPath: "/etc/tls"
