@@ -5,9 +5,9 @@ metadata:
   namespace: default
 type: Opaque
 StringData:
-  DATABASE_NAME: __DATABASE_NAME__
-  DATABASE_USER: __DATABASE_USER__
-  DATABASE_PASSWORD: __DATABASE_PASSWORD__
+  DATABASE_NAME: $(DATABASE_NAME)
+  DATABASE_USER: $(DATABASE_USER)
+  DATABASE_PASSWORD: $(DATABASE_PASSWORD)
 ---
 apiVersion: apps/v1
 kind: Deployment
