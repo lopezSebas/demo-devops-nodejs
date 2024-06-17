@@ -177,7 +177,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Create Container
   jobs:
   - job: Create_Container
