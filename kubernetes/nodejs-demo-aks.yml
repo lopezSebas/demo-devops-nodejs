@@ -4,10 +4,10 @@ metadata:
   name: db-secret
   namespace: default
 type: Opaque
-StringData:
-  DATABASE_NAME: $(DATABASE_NAME)
-  DATABASE_USER: $(DATABASE_USER)
-  DATABASE_PASSWORD: $(DATABASE_PASSWORD)
+data:
+  DATABASE_NAME: ZGV2LnNxbGl0ZQ==        # ./dev.sqlite (Base64 encoded)
+  DATABASE_USER: dXNlcg==                # user (Base64 encoded)
+  DATABASE_PASSWORD: cGFzc3dvcmQ=        # password (Base64 encoded)
 ---
 apiVersion: apps/v1
 kind: Deployment
