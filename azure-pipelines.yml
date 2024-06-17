@@ -41,6 +41,10 @@ stages:
         DATABASE_USER: $(DATABASE_USER)
         DATABASE_PASSWORD: $(DATABASE_PASSWORD)
       displayName: 'Run Tests with coverage'
+    - task: replacetokens@6
+      inputs:
+        sources: 'kubernetes/nodejs-demo-aks.yml'
+        addBOM: true
     - task: PublishTestResults@2
       enabled: false
       inputs:
