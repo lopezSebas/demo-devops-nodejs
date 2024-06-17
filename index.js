@@ -19,7 +19,7 @@ const options = {
 
 const server = https.createServer(options, app);
 
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log('Server running on port PORT', PORT)
 })
 
