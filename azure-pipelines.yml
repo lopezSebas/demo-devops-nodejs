@@ -36,6 +36,10 @@ stages:
     - script: |
         export NODE_ENV=test
         npm test -- --coverage
+      env:
+        DATABASE_NAME: $(DATABASE_NAME)
+        DATABASE_USER: $(DATABASE_USER)
+        DATABASE_PASSWORD: $(DATABASE_PASSWORD)
       displayName: 'Run Tests with coverage'
     - task: PublishTestResults@2
       enabled: false
