@@ -26,7 +26,7 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
-    - task: SonarQubePrepare@5
+    - task: SonarQubePrepare@6
       inputs:
         SonarQube: 'SonarQube'
         scannerMode: 'CLI'
@@ -47,10 +47,11 @@ stages:
           sonar.test.inclusions=**/*.test.js, **/*.spec.js
           sonar.sourceEncoding=UTF-8
           sonar.javascript.lcov.reportPaths=coverage/lcov.info
-    - task: SonarQubeAnalyze@5
+    - task: SonarQubeAnalyze@6
       inputs:
-        jdkversion: 'JAVA_HOME_11_X64'      
-    - task: SonarQubePublish@5
+        jdkversion: 'JAVA_HOME_17_X64'      
+    - task: SonarQubePublish@6
+      enabled: false
       inputs:
         pollingTimeoutSec: '300'
 - stage: Code_Build
