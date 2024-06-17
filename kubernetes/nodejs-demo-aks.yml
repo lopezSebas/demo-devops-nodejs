@@ -5,9 +5,9 @@ metadata:
   namespace: default
 type: Opaque
 data:
-  DATABASE_NAME: ZGV2LnNxbGl0ZQ==        # ./dev.sqlite (Base64 encoded)
-  DATABASE_USER: dXNlcg==                # user (Base64 encoded)
-  DATABASE_PASSWORD: cGFzc3dvcmQ=        # password (Base64 encoded)
+  DATABASE_NAME: __DATABASE_NAME__
+  DATABASE_USER: __DATABASE_USER__
+  DATABASE_PASSWORD: __DATABASE_PASSWORD__
 ---
 apiVersion: apps/v1
 kind: Deployment
