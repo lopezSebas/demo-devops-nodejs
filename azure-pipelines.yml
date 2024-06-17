@@ -149,7 +149,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Create Container
   jobs:
   - job: Create_Container
@@ -195,7 +195,7 @@ stages:
           organization: 'slorenzonl'
           
 - stage: Deploy_Kubernetes
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
@@ -235,7 +235,7 @@ stages:
                 secretName: 'mysecretkey'
             
 - stage: Deploy_Monitoring
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Deploy to a Prometeus and Grafana
   jobs:
     - deployment: Deploy
