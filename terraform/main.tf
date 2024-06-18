@@ -21,7 +21,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size    = "Standard_D2_v2"
 	vnet_subnet_id = azurerm_subnet.subnet.id
   }
-
+  
+  network_profile {
+    network_plugin = "azure"
+    service_cidr   = "10.3.0.0/16"  
+    dns_service_ip = "10.3.0.10"
+  }
+  
   identity {
     type = "SystemAssigned"
   }
