@@ -5,7 +5,7 @@ provider "azurerm" {
 # Crea un grupo de recursos
 resource "azurerm_resource_group" "rg" {
   name     = "rg-az400-prod"
-  location = "East US 2"
+  location = "West Europe"
 }
 
 # Crea un clúster de Kubernetes
