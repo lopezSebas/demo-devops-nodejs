@@ -42,7 +42,7 @@ stages:
         command: 'init'
         backendServiceArm: 'Azure-MS'
         backendAzureRmResourceGroupName: 'AKSsll'
-        backendAzureRmStorageAccountName: '$(terraformstorageaccount)/terraform'
+        backendAzureRmStorageAccountName: '$(System.DefaultWorkingDirectory)/terraform'
         backendAzureRmContainerName: 'terraform'
         backendAzureRmKey: 'terraform.tfstate'
     - task: TerraformTaskV4@4
