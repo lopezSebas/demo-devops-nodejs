@@ -19,6 +19,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     name       = "default"
     node_count = 2
     vm_size    = "Standard_D2_v2"
+	vnet_subnet_id = azurerm_subnet.subnet.id
   }
 
   identity {
@@ -63,7 +64,7 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "miregistrocontainer"
+  name                = "myregistercontainer${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Standard"
