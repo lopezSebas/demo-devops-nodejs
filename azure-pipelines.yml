@@ -15,7 +15,7 @@ pool:
 variables:
   shouldExecuteTestStage: true
   ACR: slldemoacr.azurecr.io
-  terraformstoragerg: 'mi-cluster-rg'
+  terraformstoragerg: 'prod-az400-aks'
   terraformstorageaccount: 'terraformstorage1b6b0272'
 
 stages:
