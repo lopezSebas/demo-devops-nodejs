@@ -4,13 +4,13 @@ provider "azurerm" {
 
 # Crea un grupo de recursos
 resource "azurerm_resource_group" "rg" {
-  name     = "mi-cluster-rg"
-  location = "West Europe"
+  name     = "rg-az400-prod"
+  location = "East US 2"
 }
 
 # Crea un clúster de Kubernetes
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "mi-cluster-aks"
+  name                = "prod-az400-aks"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "micluster"
@@ -41,14 +41,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "pool" {
 
 # Configura un grupo de seguridad de red
 resource "azurerm_network_security_group" "nsg" {
-  name                = "mi-nsg"
+  name                = "my-nsg"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 # Configura una red virtual
 resource "azurerm_virtual_network" "vnet" {
-  name                = "mi-vnet"
+  name                = "my-vnet"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/8"]
@@ -56,8 +56,21 @@ resource "azurerm_virtual_network" "vnet" {
 
 # Configura una subred dentro de la red virtual
 resource "azurerm_subnet" "subnet" {
-  name                 = "mi-subnet"
+  name                 = "my-subnet"
   virtual_network_name = azurerm_virtual_network.vnet.name
   resource_group_name  = azurerm_resource_group.rg.name
   address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_container_registry" "acr" {
+  name                = "miregistrocontainer"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Standard"
+  admin_enabled       = true
+}
+
+output "acr_login_server" {
+  value       = azurerm_container_registry.acr.login_server
+  description = "URL del registro de contenedores"
 }

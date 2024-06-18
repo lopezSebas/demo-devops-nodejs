@@ -20,7 +20,7 @@ variables:
 
 stages:
 - stage: IaC
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Build Terraform
   jobs:
   - job: Build_Terraform
@@ -61,7 +61,7 @@ stages:
         environmentServiceNameAzureRM: 'Azure-MS'
 
 - stage: Code_Build
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -227,7 +227,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
   - job: Create_Container
@@ -273,7 +273,7 @@ stages:
           organization: 'slorenzonl'
           
 - stage: Deploy_Kubernetes
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
