@@ -15,10 +15,12 @@ pool:
 variables:
   shouldExecuteTestStage: true
   ACR: slldemoacr.azurecr.io
+  terraformstoragerg: 'mi-cluster-rg'
+  terraformstorageaccount: 'terraformstorage1b6b0272'
 
 stages:
 - stage: IaC
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Build Terraform
   jobs:
   - job: Build_Terraform
@@ -27,25 +29,38 @@ stages:
     steps:
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(System.DefaultWorkingDirectory)/terraform-manifests'
-        artifact: 'terraform-manifests-out'
+        targetPath: '$(System.DefaultWorkingDirectory)/terraform'
+        artifact: 'terraform-out'
         publishLocation: 'pipeline'
     - task: TerraformInstaller@1
       inputs:
-        terraformVersion: 'latest'
+        terraformVersion: '0.12.3'
     - task: TerraformTaskV4@4
       inputs:
         provider: 'azurerm'
         command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform-manifests'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+        backendAzureRmUseEnvironmentVariablesForAuthentication: false
         backendServiceArm: 'Azure-MS'
-        backendAzureRmResourceGroupName: 'AKSsll'
-        backendAzureRmStorageAccountName: 'terraformstatexlrwdrzs'
-        backendAzureRmContainerName: 'tfstatefiles'
-        backendAzureRmKey: 'aks-base.tfstate'
+        backendAzureRmResourceGroupName: '$(terraformstoragerg)'
+        backendAzureRmStorageAccountName: '$(terraformstorageaccount) '
+        backendAzureRmContainerName: 'terraform'
+        backendAzureRmKey: 'terraform.tfstate'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+        environmentServiceNameAzureRM: 'Azure-MS'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        commandOptions: '-auto-approve'
+        environmentServiceNameAzureRM: 'Azure-MS'
 
 - stage: Code_Build
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
   jobs:
   - job: Build_Code
@@ -211,7 +226,7 @@ stages:
         displayName: "Analyzing detect-secrets results"
 
 - stage: Container
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Create Container
   jobs:
   - job: Create_Container
@@ -257,7 +272,7 @@ stages:
           organization: 'slorenzonl'
           
 - stage: Deploy_Kubernetes
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
