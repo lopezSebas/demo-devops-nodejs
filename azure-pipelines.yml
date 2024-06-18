@@ -40,9 +40,11 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
+        backendAzureRmUseEnvironmentVariablesForAuthentication: false
         backendServiceArm: 'Azure-MS'
         backendAzureRmResourceGroupName: 'AKSsll'
-        backendAzureRmStorageAccountName: '$(System.DefaultWorkingDirectory)/terraform'
+        backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
         backendAzureRmContainerName: 'terraform'
         backendAzureRmKey: 'terraform.tfstate'
     - task: TerraformTaskV4@4
