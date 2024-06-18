@@ -63,6 +63,12 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+# Genera un sufijo aleatorio para el nombre del registro de contenedores
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+}
+
 resource "azurerm_container_registry" "acr" {
   name                = "myregistercontainer${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.rg.name
