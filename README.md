@@ -1,3 +1,11 @@
+## Now you can test with the following endpoint
+
+https://[4.152.202.106/api/users](https://4.152.202.106/api/users)
+
+# Technical Test Diagram Demo DevOps NodeJS
+
+![PruebaTecnicaDevOps (1)](https://github.com/lopezSebas/demo-devops-nodejs/assets/54725844/361410ed-242b-4469-b28c-a7e2ef1d25da)
+
 # Demo Devops NodeJs
 
 This is a simple application to be used in the technical test of DevOps.
