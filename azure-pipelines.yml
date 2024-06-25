@@ -209,6 +209,7 @@ stages:
                 backendServiceArm: 'Azure-MS'
                 backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
                 backendAzureRmContainerName: 'terraform'
+                backendAzureRmKey: 'terraform.tfstate'
             - task: TerraformTaskV4@4
               inputs:
                 provider: 'azurerm'
