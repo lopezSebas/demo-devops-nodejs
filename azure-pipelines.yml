@@ -208,6 +208,7 @@ stages:
                 backendAzureRmUseEnvironmentVariablesForAuthentication: false
                 backendServiceArm: 'Azure-MS'
                 backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
+                backendAzureRmContainerName: 'terraform'
             - task: TerraformTaskV4@4
               inputs:
                 provider: 'azurerm'
