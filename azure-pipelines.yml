@@ -140,7 +140,7 @@ stages:
         cwd: '$(System.DefaultWorkingDirectory)'
 
 - stage: Scan_Secrets
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Scan Secrets
   jobs:
   - job: ubuntu
@@ -184,6 +184,50 @@ stages:
             echo "##vso[task.complete result=Succeeded;]No secrets detected."
           fi
         displayName: "Analyzing detect-secrets results"
+
+- stage: Deploy_Terraform
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  displayName: Deploy to a IaC
+  jobs:
+    - deployment: Deploy
+      environment: approvals
+      pool:
+        vmImage: "ubuntu-latest"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: TerraformInstaller@1
+              inputs:
+                terraformVersion: '0.12.3'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
+                backendAzureRmUseEnvironmentVariablesForAuthentication: false
+                backendServiceArm: 'Azure-MS'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'plan'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
+                environmentServiceNameAzureRM: 'Azure-MS'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
+                commandOptions: '-auto-approve'
+                environmentServiceNameAzureRM: 'Azure-MS'
+            - script: |
+                ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server)
+                echo "##vso[task.setvariable variable=ACR]$ACR_LOGIN_SERVER"
+              displayName: 'Get ACR Login Server Output'
+
+            - script: |
+                echo "ACR Login Server: $(ACR_LOGIN_SERVER)"
+              displayName: 'Use ACR Login Server'
 
 - stage: Container
   condition: eq(variables['shouldExecuteTestStage'], 'false')
@@ -231,52 +275,9 @@ stages:
           projectName: 'Container-node-js'
           organization: 'slorenzonl'
           
-- stage: Deploy_Terraform
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
-  displayName: Deploy to a IaC
-  jobs:
-    - deployment: Deploy
-      environment: approvals
-      pool:
-        vmImage: "ubuntu-latest"
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - task: TerraformInstaller@1
-              inputs:
-                terraformVersion: '0.12.3'
-            - task: TerraformTaskV4@4
-              inputs:
-                provider: 'azurerm'
-                command: 'init'
-                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
-                backendAzureRmUseEnvironmentVariablesForAuthentication: false
-                backendServiceArm: 'Azure-MS'
-            - task: TerraformTaskV4@4
-              inputs:
-                provider: 'azurerm'
-                command: 'plan'
-                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
-                environmentServiceNameAzureRM: 'Azure-MS'
-            - task: TerraformTaskV4@4
-              inputs:
-                provider: 'azurerm'
-                command: 'apply'
-                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
-                commandOptions: '-auto-approve'
-                environmentServiceNameAzureRM: 'Azure-MS'
-            - script: |
-                ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server)
-                echo "##vso[task.setvariable variable=ACR]$ACR_LOGIN_SERVER"
-              displayName: 'Get ACR Login Server Output'
 
-            - script: |
-                echo "ACR Login Server: $(ACR_LOGIN_SERVER)"
-              displayName: 'Use ACR Login Server'
-          
 - stage: Deploy_Kubernetes
-  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  condition: eq(variables['shouldExecuteTestStage'], 'true')
   displayName: Deploy to a K8S
   jobs:
     - deployment: Deploy
