@@ -207,6 +207,7 @@ stages:
                 workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
                 backendAzureRmUseEnvironmentVariablesForAuthentication: false
                 backendServiceArm: 'Azure-MS'
+                backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
             - task: TerraformTaskV4@4
               inputs:
                 provider: 'azurerm'
