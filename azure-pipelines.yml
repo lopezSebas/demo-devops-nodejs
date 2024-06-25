@@ -13,54 +13,12 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  shouldExecuteTestStage: true
+  shouldExecuteTestStage: false
   ACR: slldemoacr.azurecr.io
   terraformstoragerg: 'prod-az400-aks'
   terraformstorageaccount: 'terraformstorage1b6b0272'
 
 stages:
-- stage: IaC
-  condition: eq(variables['shouldExecuteTestStage'], 'true')
-  displayName: Build Terraform
-  jobs:
-  - job: Build_Terraform
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(System.DefaultWorkingDirectory)/terraform'
-        artifact: 'terraform-out'
-        publishLocation: 'pipeline'
-    - task: TerraformInstaller@1
-      inputs:
-        terraformVersion: '0.12.3'
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-        backendAzureRmUseEnvironmentVariablesForAuthentication: false
-        backendServiceArm: 'Azure-MS'
-        backendAzureRmResourceGroupName: 'AKSsll'
-        backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
-        backendAzureRmContainerName: 'terraform'
-        backendAzureRmKey: 'terraform.tfstate'
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: 'azurerm'
-        command: 'plan'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-        environmentServiceNameAzureRM: 'Azure-MS'
-    - task: TerraformTaskV4@4
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform'
-        commandOptions: '-auto-approve'
-        environmentServiceNameAzureRM: 'Azure-MS'
-
 - stage: Code_Build
   condition: eq(variables['shouldExecuteTestStage'], 'false')
   displayName: Build Node JS
@@ -272,6 +230,46 @@ stages:
           failOnIssues: false
           projectName: 'Container-node-js'
           organization: 'slorenzonl'
+          
+- stage: Deploy_Terraform
+  condition: eq(variables['shouldExecuteTestStage'], 'false')
+  displayName: Deploy to a IaC
+  jobs:
+    - deployment: Deploy
+      environment: approvals
+      pool:
+        vmImage: "ubuntu-latest"
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: TerraformInstaller@1
+              inputs:
+                terraformVersion: '0.12.3'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                backendAzureRmUseEnvironmentVariablesForAuthentication: false
+                backendServiceArm: 'Azure-MS'
+                backendAzureRmResourceGroupName: 'AKSsll'
+                backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
+                backendAzureRmContainerName: 'terraform'
+                backendAzureRmKey: 'terraform.tfstate'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'plan'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                environmentServiceNameAzureRM: 'Azure-MS'
+            - task: TerraformTaskV4@4
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                commandOptions: '-auto-approve'
+                environmentServiceNameAzureRM: 'Azure-MS'
           
 - stage: Deploy_Kubernetes
   condition: eq(variables['shouldExecuteTestStage'], 'false')
