@@ -127,3 +127,25 @@ coverage/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Ignorar archivos de estado de Terraform
+terraform/*.tfstate
+terraform/*.tfstate.backup
+
+# Ignorar configuraciones locales de Terraform
+terraform/.terraform/
+
+# No ignorar el archivo de bloqueo
+!terraform/.terraform.lock.hcl
+
+# Ignorar archivos de configuración personal
+terraform/terraform.tfvars
+terraform/*.tfvars
+
+# Ignorar archivos de salida de los comandos plan
+terraform/*.plan
+
+# Ignorar archivos de credenciales
+terraform/*.env
+terraform/*.key
+terraform/*.pem
