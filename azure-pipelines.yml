@@ -14,7 +14,7 @@ pool:
 
 variables:
   shouldExecuteTestStage: false
-  ACR: slldemoacr.azurecr.io
+  ACR: ""
   terraformstoragerg: 'prod-az400-aks'
   terraformstorageaccount: 'terraformstorage1b6b0272'
 
@@ -250,26 +250,30 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
                 backendAzureRmUseEnvironmentVariablesForAuthentication: false
                 backendServiceArm: 'Azure-MS'
-                backendAzureRmResourceGroupName: 'AKSsll'
-                backendAzureRmStorageAccountName: '$(terraformstorageaccount)'
-                backendAzureRmContainerName: 'terraform'
-                backendAzureRmKey: 'terraform.tfstate'
             - task: TerraformTaskV4@4
               inputs:
                 provider: 'azurerm'
                 command: 'plan'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
                 environmentServiceNameAzureRM: 'Azure-MS'
             - task: TerraformTaskV4@4
               inputs:
                 provider: 'azurerm'
                 command: 'apply'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/drop/terraform'
+                workingDirectory: '$(Pipeline.Workspace)/drop/terraform'
                 commandOptions: '-auto-approve'
                 environmentServiceNameAzureRM: 'Azure-MS'
+            - script: |
+                ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server)
+                echo "##vso[task.setvariable variable=ACR]$ACR_LOGIN_SERVER"
+              displayName: 'Get ACR Login Server Output'
+
+            - script: |
+                echo "ACR Login Server: $(ACR_LOGIN_SERVER)"
+              displayName: 'Use ACR Login Server'
           
 - stage: Deploy_Kubernetes
   condition: eq(variables['shouldExecuteTestStage'], 'false')
